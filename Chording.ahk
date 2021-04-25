@@ -51,7 +51,6 @@ ChordKeyUp(ih, vk, sc)
         }
 
         Sort chordStr, N D_
-        ; ToolTip % chordStr
         handlerName := "HandleChord_" . chordStr
         if ChordNumLock
         {
@@ -62,28 +61,37 @@ ChordKeyUp(ih, vk, sc)
             handlerName := "HandleNumPadLockChord_" . chordStr
         }
 
+        ; ToolTip % "Chord: " . chordStr
+
         handler := Func(handlerName)
         if handler != 0
         {
-            if ChordAlt
-                SendInput {LAlt down}
-            if ChordShift
-                SendInput {LShift down}
-            if ChordCtrl
-                SendInput {LCtrl down}
+            IsModifier := chordStr = "32" or chordStr = "82" or chordStr = "70" or chordStr = "52" or chordStr = "53"
+            if IsModifier = 0
+            {
+                if ChordAlt
+                    SendInput {LAlt down}
+                if ChordShift
+                    SendInput {LShift down}
+                if ChordCtrl
+                    SendInput {LCtrl down}
+            }
 
             %handlerName%()
             
-            if ChordAlt
-                SendInput {LAlt up}
-            if ChordShift
-                SendInput {LShift up}
-            if ChordCtrl
-                SendInput {LCtrl up}
+            if IsModifier = 0
+            {
+                if ChordAlt
+                    SendInput {LAlt up}
+                if ChordShift
+                    SendInput {LShift up}
+                if ChordCtrl
+                    SendInput {LCtrl up}
+            }
         }
     }
 
-    ; Remove the key from the chord (for now, remo)
+    ; Remove the key from the chord
     ActiveChord.Delete("" . vk)
     IsChordActive := False
 
@@ -102,6 +110,7 @@ ChordKeyUp(ih, vk, sc)
    
 ; Handle key up/down for all keys, and suppress input
 ChordHook.KeyOpt("{All}", "NS")
+ChordHook.NotifyNonText := True
 
 ; Don't eat our own output
 ChordHook.MinSendLevel := 1
@@ -115,6 +124,18 @@ ChordHook.Start()
 ;
 ; Chord handlers
 ;
+
+; Tartarus v2 default keycodes:
+;  49  50  51  52  53
+;   9  81  87  69  82
+;  20  65  83  68  70
+;  86  90  88  67
+;  *
+;  \--> Remap lshift (160) to v in Synapse. Haven't worked out buggy shift behavior
+;       with the default binding...
+;
+; Thumb top    : 164 (probably needs a similar rebind as the shift key above)
+; Thumb bottom :  32
 
 HandleChord_82()
 {
@@ -190,7 +211,7 @@ HandleNumPadLockChord_32() {
     HandleChord_32()
 }
 
-HandleChord_160() {
+HandleChord_86() {
     SendInput {BackSpace}
 }
 
@@ -249,17 +270,6 @@ HandleChord_65() {
 HandleChord_81() {
     SendInput s
 }
-
-; 11  08  05  02
-; 10  07  04  01
-; 09  06  03  00
-
-;   9  81  87  69
-;  20  65  83  68   82
-; 160  90  88  67   70
-
-; Thumb top : 164
-; Top row :    49  50  51  52  53
 
 HandleNumPadLockChord_53() {
     SendInput 9
@@ -346,9 +356,9 @@ HandleChord_65_68_83()
     SendInput x
 }
 
-HandleChord_88_90_160()
+HandleChord_86_88_90()
 {
-    SendInput z
+    SendInput {z}
 }
 
 HandleChord_67_88_90()
@@ -371,7 +381,7 @@ HandleChord_20_65_83()
     SendInput g
 }
 
-HandleChord_69_160()
+HandleChord_69_86()
 {
     SendInput `\
 }
@@ -396,7 +406,7 @@ HandleChord_9_68_81()
     SendInput {<}
 }
 
-HandleChord_68_90_160()
+HandleChord_68_86_90()
 {
     SendInput {>}
 }
@@ -418,12 +428,12 @@ HandleChord_68_88()
 
 HandleChord_65_88()
 {
-    SendInput `%
+    SendInput {!}
 }
 
 HandleChord_83_90()
 {
-    SendInput {!}
+    SendInput `%
 }
 
 HandleChord_37()
@@ -446,7 +456,7 @@ HandleChord_40()
     SendInput {Down}
 }
 
-HandleChord_87_160()
+HandleChord_86_87()
 {
     SendInput `&
 }
@@ -456,7 +466,7 @@ HandleChord_9_87()
     SendInput {~}
 }
 
-HandleChord_88_160()
+HandleChord_86_88()
 {
     SendInput ``
 }
@@ -481,19 +491,19 @@ HandleChord_9_65()
     SendInput {$}
 }
 
-HandleChord_65_160()
+HandleChord_65_86()
 {
     SendInput {#}
 }
 
 HandleChord_65_87()
 {
-    SendInput {_}
+    SendInput {?}
 }
 
 HandleChord_81_83()
 {
-    SendInput {?}
+    SendInput {_}
 }
 
 HandleChord_67_90()
@@ -516,14 +526,14 @@ HandleChord_9_68()
     SendInput p
 }
 
-HandleChord_68_160()
+HandleChord_68_86()
 {
     SendInput q
 }
 
-HandleChord_67_160()
+HandleChord_67_86()
 {
-    SendInput c
+    SendInput {c}
 }
 
 HandleChord_20_68()
@@ -546,7 +556,7 @@ HandleChord_67_88()
     SendInput `'
 }
 
-HandleChord_90_160()
+HandleChord_86_90()
 {
     SendInput `"
 }
@@ -588,10 +598,6 @@ HandleChord_9_69_81_87() {
 HandleChord_20_65_68_83()
 {
     SendInput {Tab}
-}
-
-HandleChord_67_88_90_160() 
-{
 }
 
 HandleChord_49_52_53() 
