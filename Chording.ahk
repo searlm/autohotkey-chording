@@ -47,35 +47,28 @@ ChordKeyUp(ih, vk, sc)
             If chordIdx > 0
                 chordStr .= "_"
             chordStr .= key
-            chordIdx = chordIdx + 1
+            chordIdx := chordIdx + 1
         }
 
         Sort chordStr, N D_
-        handlerName := "HandleChord_" . chordStr
-        if ChordNumLock
+        defaultHandlerName := "HandleChord_" . chordStr
+        handlerName := defaultHandlerName
+        if ChordNumLock and IsFunc("HandleNumPadLockChord_" . chordStr)
         {
-            handlerName := "HandleNumLockChord_" . chordStr
+            ; handlerName := "HandleNumLockChord_" . chordStr
+            handlerName := "HandleNumPadLockChord_" . chordStr
         }
-        else if ChordNumPadLock
+        else if ChordNumPadLock and IsFunc("HandleNumPadLockChord_" . chordStr)
         {
             handlerName := "HandleNumPadLockChord_" . chordStr
         }
 
         ; ToolTip % "Chord: " . chordStr
-
         handler := Func(handlerName)
+
         if handler != 0
         {
             IsModifier := chordStr = "32" or chordStr = "82" or chordStr = "70" or chordStr = "52" or chordStr = "53"
-            if IsModifier = 0
-            {
-                if ChordAlt
-                    SendInput {LAlt down}
-                if ChordShift
-                    SendInput {LShift down}
-                if ChordCtrl
-                    SendInput {LCtrl down}
-            }
 
             %handlerName%()
             
@@ -142,10 +135,12 @@ HandleChord_82()
     if ChordAlt
     {
         ChordAlt := False
+        SendInput {LAlt up}
     }
     else
     {
         ChordAlt := True
+        SendInput {LAlt down}
     }
 
     IsModifierToggle := True
@@ -156,10 +151,12 @@ HandleChord_70()
     if ChordCtrl
     {
         ChordCtrl := False
+        SendInput {LCtrl up}
     }
     else
     {
         ChordCtrl := True
+        SendInput {LCtrl down}
     }
 
     IsModifierToggle := True
@@ -170,10 +167,12 @@ HandleChord_52()
     if ChordShift
     {
         ChordShift := False
+        SendInput {LShift up}
     }
     else
     {
         ChordShift := True
+        SendInput {LShift down}
     }
     
     IsModifierToggle := True
